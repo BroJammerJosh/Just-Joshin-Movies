@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just Joshin' at the Movies</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Just Joshin' at the Movies</h1>
+            <p>Movie ratings from your favorite weirdo</p>
+        </header>
+
+
+
+        <div class="movies-section">
+            <h2>The Movies</h2>
+            <div class="filter-sort">
+                <div class="filters">
+                    <select id="sortBy">
+                        <option value="date-desc">Newest First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="score-desc">Highest Score</option>
+                        <option value="score-asc">Lowest Score</option>
+                        <option value="title">Alphabetical</option>
+                    </select>
+                    
+                    <select id="scoreFilter">
+                        <option value="all">All Scores</option>
+                        <option value="2">Score: 2</option>
+                        <option value="1">Score: 1</option>
+                        <option value="0">Score: 0</option>
+                        <option value="-1">Score: -1</option>
+                    </select>
+                    
+                    <select id="yearFilter">
+                        <option value="all">All Years</option>
+                    </select>
+                    
+                    <div class="search-container">
+                        <input type="text" id="movieSearch" placeholder="Search movies..." autocomplete="off">
+                        <div id="searchSuggestions" class="search-suggestions"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="moviesList" class="movies-list">
+                <!-- Movies will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

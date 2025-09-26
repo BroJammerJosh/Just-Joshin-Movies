@@ -1,0 +1,356 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+header p {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.movies-section {
+    padding: 40px;
+}
+
+.movies-section h2 {
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-size: 1.8rem;
+}
+
+
+
+.search-container {
+    position: relative;
+}
+
+.search-container input {
+    width: 200px;
+    padding: 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background: #f8f9ff;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.filter-sort {
+    margin-bottom: 30px;
+}
+
+.filters {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filters select {
+    width: auto;
+    min-width: 150px;
+    padding: 10px;
+}
+
+.movies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.year-section {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.year-header {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.year-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.net-score {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.score-value.positive {
+    color: #2ecc71;
+}
+
+.score-value.negative {
+    color: #e74c3c;
+}
+
+.movies-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: 15px;
+    padding: 15px 25px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: 15px;
+    padding: 20px 25px;
+    border-bottom: 1px solid #f1f3f4;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.table-row:hover {
+    background: #f8f9ff;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.col-title .movie-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.col-title .movie-notes {
+    color: #666;
+    font-size: 0.85rem;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.col-score {
+    text-align: center;
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.score-badge.score--1 {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.score-badge.score-0 {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.score-badge.score-1 {
+    background: #d4edda;
+    color: #155724;
+}
+
+.score-badge.score-2 {
+    background: #d4edda;
+    color: #155724;
+    border: 3px solid #28a745;
+    font-weight: 700;
+}
+
+.col-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.col-actions {
+    text-align: center;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    padding: 8px 15px;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state h3 {
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+
+    header {
+        padding: 30px 20px;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .movies-section {
+        padding: 30px 20px;
+    }
+    
+    .search-container input {
+        width: 150px;
+        font-size: 13px;
+    }
+    
+    .filters {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filters select,
+    .search-container {
+        width: 100%;
+    }
+    
+    .search-container input {
+        width: 100%;
+    }
+
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr 80px;
+        gap: 10px;
+        padding: 15px 20px;
+    }
+    
+    .table-header {
+        font-size: 0.8rem;
+    }
+    
+    .col-title .movie-title {
+        font-size: 1rem;
+    }
+    
+    .col-title .movie-notes {
+        font-size: 0.8rem;
+    }
+    
+    .year-header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .year-header h3 {
+        font-size: 1.3rem;
+    }
+}
