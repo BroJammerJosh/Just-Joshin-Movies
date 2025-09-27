@@ -70,7 +70,7 @@ function doGet(e) {
                     if (!row[0] || row[0].toString().trim() === '') return null;
 
                     return {
-                        id: Date.now() + allMovies.length + index, // Generate unique ID
+                        id: (year * 10000) + (index + 1), // Use year and row position for consistent ordering
                         title: row[0].toString().trim(), // Title from column A
                         score: parseInt(row[1]) || 0, // Score from column B
                         notes: row[2] ? row[2].toString().trim() : '', // Notes from column C only
