@@ -199,6 +199,10 @@ class MovieTracker {
 
         sortedYears.forEach(year => {
             const yearMovies = moviesByYear[year];
+            
+            // Sort movies within each year by date (oldest to newest)
+            yearMovies.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
             const netScore = yearMovies.reduce((sum, movie) => sum + movie.score, 0);
 
             html += `
