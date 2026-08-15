@@ -18,8 +18,14 @@
         </header>
 
         <div class="system-section">
-            <h2>The System</h2>
-            <div class="system-explanation">
+            <button class="system-toggle" aria-expanded="false" aria-controls="system-explanation">
+                <div class="system-title-group">
+                    <h2>The System</h2>
+                    <span class="system-subtitle">The method in the madness</span>
+                </div>
+                <span class="toggle-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="system-explanation" id="system-explanation" hidden>
                 <p><strong>Here's the thing:</strong> everyone uses letter grades, stars, X/10, etc., to rate movies. It's boring, too easily understood by readers, and doesn't allow for a holistic view of the total impact movies have on a person's life. I don't respect it.</p>
         
                 <p>Instead, I use a "quality of life" scoring system that ranges from -1 to 2. I only use integers—no 1.3 or -0.8—because I'm not a coward, and I commit to my ratings.</p>
@@ -69,6 +75,15 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        const toggle = document.querySelector('.system-toggle');
+        const explanation = document.getElementById('system-explanation');
+        toggle.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', String(!expanded));
+            explanation.hidden = expanded;
+        });
+    </script>
 </body>
 </html>
 
