@@ -1,6 +1,12 @@
+const TMDB_API_KEY = 'b4ba32fa646c73c4d65e7655af34b8be';
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w92';
+const POSTER_CACHE_KEY = 'tmdb_poster_cache';
+
 class MovieTracker {
     constructor() {
         this.movies = JSON.parse(localStorage.getItem('movies')) || [];
+        this.posterCache = JSON.parse(localStorage.getItem(POSTER_CACHE_KEY)) || {};
         this.currentScore = null;
         this.init();
     }
@@ -88,16 +94,16 @@ class MovieTracker {
         document.getElementById('searchSuggestions').style.display = 'none';
     }
 
-    filterBySearch(searchTerm) {
+    async filterBySearch(searchTerm) {
         const filteredMovies = this.movies.filter(movie => 
             movie.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
-        this.displayMoviesList(filteredMovies);
+        await this.displayMoviesList(filteredMovies);
     }
 
 
 
-    applyFiltersAndSort() {
+    async applyFiltersAndSort() {
         let filteredMovies = [...this.movies];
 
         // Apply search filter
@@ -140,7 +146,7 @@ class MovieTracker {
                 break;
         }
 
-        this.displayMoviesList(filteredMovies);
+        await this.displayMoviesList(filteredMovies);
     }
 
     displayMovies() {
@@ -169,7 +175,7 @@ class MovieTracker {
         }
     }
 
-    displayMoviesList(moviesToShow) {
+    async displayMoviesList(moviesToShow) {
         const moviesList = document.getElementById('moviesList');
 
         if (moviesToShow.length === 0) {
@@ -181,6 +187,9 @@ class MovieTracker {
             `;
             return;
         }
+
+        // Fetch any missing posters before rendering
+        await this.fetchMissingPosters(moviesToShow);
 
         // Group movies by year
         const moviesByYear = {};
@@ -218,17 +227,26 @@ class MovieTracker {
                             <div class="col-score">Score</div>
                         </div>
                         
-                        ${yearMovies.map(movie => `
+                        ${yearMovies.map(movie => {
+                            const cacheKey = `${movie.title}-${movie.year}`;
+                            const posterUrl = this.posterCache[cacheKey];
+                            const posterHtml = posterUrl
+                                ? `<img class="movie-poster" src="${posterUrl}" alt="" loading="lazy" width="46" height="69">`
+                                : `<div class="movie-poster movie-poster--placeholder"></div>`;
+                            return `
                             <div class="table-row">
                                 <div class="col-title">
-                                    <div class="movie-title">${this.escapeHtml(movie.title)}</div>
-                                    ${movie.notes ? `<div class="movie-notes">${this.escapeHtml(movie.notes)}</div>` : ''}
+                                    ${posterHtml}
+                                    <div class="movie-title-group">
+                                        <div class="movie-title">${this.escapeHtml(movie.title)}</div>
+                                        ${movie.notes ? `<div class="movie-notes">${this.escapeHtml(movie.notes)}</div>` : ''}
+                                    </div>
                                 </div>
                                 <div class="col-score">
                                     <span class="score-badge score-${movie.score}">${movie.score}</span>
                                 </div>
-                            </div>
-                        `).join('')}
+                            </div>`;
+                        }).join('')}
                     </div>
                 </div>
             `;
@@ -262,6 +280,54 @@ class MovieTracker {
 
     saveMovies() {
         localStorage.setItem('movies', JSON.stringify(this.movies));
+    }
+
+    savePosterCache() {
+        localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(this.posterCache));
+    }
+
+    async fetchPoster(title, year) {
+        const cacheKey = `${title}-${year}`;
+
+        // Return cached result (including null for known misses)
+        if (Object.prototype.hasOwnProperty.call(this.posterCache, cacheKey)) {
+            return this.posterCache[cacheKey];
+        }
+
+        try {
+            const query = encodeURIComponent(title);
+            const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}&year=${year}&include_adult=false`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('TMDB request failed');
+            const data = await response.json();
+            const posterPath = data.results?.[0]?.poster_path || null;
+            const posterUrl = posterPath ? `${TMDB_IMG_BASE}${posterPath}` : null;
+            this.posterCache[cacheKey] = posterUrl;
+            this.savePosterCache();
+            return posterUrl;
+        } catch {
+            this.posterCache[cacheKey] = null;
+            this.savePosterCache();
+            return null;
+        }
+    }
+
+    async fetchMissingPosters(movies) {
+        const uncached = movies.filter(m => {
+            const key = `${m.title}-${m.year}`;
+            return !Object.prototype.hasOwnProperty.call(this.posterCache, key);
+        });
+
+        if (uncached.length === 0) return;
+
+        // Fetch in parallel, max 5 at a time to be respectful of rate limits
+        const chunks = [];
+        for (let i = 0; i < uncached.length; i += 5) {
+            chunks.push(uncached.slice(i, i + 5));
+        }
+        for (const chunk of chunks) {
+            await Promise.all(chunk.map(m => this.fetchPoster(m.title, m.year)));
+        }
     }
 
     async loadFromGoogleSheets() {

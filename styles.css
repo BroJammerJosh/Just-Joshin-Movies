@@ -306,11 +306,40 @@ button:hover {
     border-bottom: none;
 }
 
+.col-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.movie-poster {
+    width: 46px;
+    height: 69px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: block;
+}
+
+.movie-poster--placeholder {
+    width: 46px;
+    height: 69px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: #e9ecef;
+}
+
+.movie-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .col-title .movie-title {
     font-size: 1.1rem;
     font-weight: 600;
     color: #2c3e50;
-    margin-bottom: 5px;
+    margin-bottom: 0;
 }
 
 .col-title .movie-notes {
@@ -450,6 +479,12 @@ button:hover {
     
     .col-title .movie-notes {
         font-size: 0.8rem;
+    }
+
+    .movie-poster,
+    .movie-poster--placeholder {
+        width: 36px;
+        height: 54px;
     }
     
     .year-header {
