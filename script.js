@@ -2,10 +2,17 @@ const TMDB_API_KEY = 'b4ba32fa646c73c4d65e7655af34b8be';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w92';
 const POSTER_CACHE_KEY = 'tmdb_poster_cache';
+const POSTER_CACHE_VERSION = 2; // bump this to bust stale cache
 
 class MovieTracker {
     constructor() {
         this.movies = JSON.parse(localStorage.getItem('movies')) || [];
+        // Bust old cache if version doesn't match
+        const cacheVersion = parseInt(localStorage.getItem('tmdb_poster_cache_version') || '1');
+        if (cacheVersion < POSTER_CACHE_VERSION) {
+            localStorage.removeItem(POSTER_CACHE_KEY);
+            localStorage.setItem('tmdb_poster_cache_version', String(POSTER_CACHE_VERSION));
+        }
         this.posterCache = JSON.parse(localStorage.getItem(POSTER_CACHE_KEY)) || {};
         this.currentScore = null;
         this.init();
@@ -228,8 +235,7 @@ class MovieTracker {
                         </div>
                         
                         ${yearMovies.map(movie => {
-                            const cacheKey = `${movie.title}-${movie.year}`;
-                            const posterUrl = this.posterCache[cacheKey];
+                            const posterUrl = this.posterCache[movie.title];
                             const posterHtml = posterUrl
                                 ? `<img class="movie-poster" src="${posterUrl}" alt="" loading="lazy" width="46" height="69">`
                                 : `<div class="movie-poster movie-poster--placeholder"></div>`;
@@ -286,8 +292,8 @@ class MovieTracker {
         localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(this.posterCache));
     }
 
-    async fetchPoster(title, year) {
-        const cacheKey = `${title}-${year}`;
+    async fetchPoster(title) {
+        const cacheKey = title;
 
         // Return cached result (including null for known misses)
         if (Object.prototype.hasOwnProperty.call(this.posterCache, cacheKey)) {
@@ -296,7 +302,7 @@ class MovieTracker {
 
         try {
             const query = encodeURIComponent(title);
-            const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}&year=${year}&include_adult=false`;
+            const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}&include_adult=false`;
             const response = await fetch(url);
             if (!response.ok) throw new Error('TMDB request failed');
             const data = await response.json();
@@ -314,8 +320,7 @@ class MovieTracker {
 
     async fetchMissingPosters(movies) {
         const uncached = movies.filter(m => {
-            const key = `${m.title}-${m.year}`;
-            return !Object.prototype.hasOwnProperty.call(this.posterCache, key);
+            return !Object.prototype.hasOwnProperty.call(this.posterCache, m.title);
         });
 
         if (uncached.length === 0) return;
@@ -326,8 +331,8 @@ class MovieTracker {
             chunks.push(uncached.slice(i, i + 5));
         }
         for (const chunk of chunks) {
-            await Promise.all(chunk.map(m => this.fetchPoster(m.title, m.year)));
-        }
+                await Promise.all(chunk.map(m => this.fetchPoster(m.title)));
+            }
     }
 
     async loadFromGoogleSheets() {
