@@ -268,30 +268,27 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
     // Hot section (score 2) — poster grid
     const hotSection = hotMovies.length === 0 ? '' : `
     <tr><td style="padding:24px 0 8px;">
-        <h2 style="margin:0 0 16px;font-size:18px;color:#2c3e50;border-bottom:2px solid #667eea;padding-bottom:8px;">🔥 What's Hot</h2>
+        <h2 style="margin:0 0 16px;font-size:18px;color:#2c3e50;border-bottom:2px solid #667eea;padding-bottom:8px;">What's Hot</h2>
         <table style="width:100%;border-collapse:collapse;"><tr>
             ${hotMovies.map(posterCard).join('')}
         </tr></table>
     </td></tr>`;
 
-    // Good section (score 1) — simple list
     const goodSection = goodMovies.length === 0 ? '' : `
     <tr><td style="padding:16px 0 8px;">
-        <h2 style="margin:0 0 12px;font-size:18px;color:#2c3e50;border-bottom:2px solid #27ae60;padding-bottom:8px;">👍 Worth Watching</h2>
+        <h2 style="margin:0 0 12px;font-size:18px;color:#2c3e50;border-bottom:2px solid #27ae60;padding-bottom:8px;">Worth Watching</h2>
         <table style="width:100%;border-collapse:collapse;">${goodMovies.map(listRow).join('')}</table>
     </td></tr>`;
 
-    // Meh section (score 0)
     const mehSection = mehMovies.length === 0 ? '' : `
     <tr><td style="padding:16px 0 8px;">
-        <h2 style="margin:0 0 12px;font-size:18px;color:#2c3e50;border-bottom:2px solid #f39c12;padding-bottom:8px;">😐 Take It or Leave It</h2>
+        <h2 style="margin:0 0 12px;font-size:18px;color:#2c3e50;border-bottom:2px solid #f39c12;padding-bottom:8px;">Take It or Leave It</h2>
         <table style="width:100%;border-collapse:collapse;">${mehMovies.map(listRow).join('')}</table>
     </td></tr>`;
 
-    // Bad section (score -1) — poster grid
     const badSection = badMovies.length === 0 ? '' : `
     <tr><td style="padding:16px 0 8px;">
-        <h2 style="margin:0 0 16px;font-size:18px;color:#2c3e50;border-bottom:2px solid #e74c3c;padding-bottom:8px;">💀 What's Not</h2>
+        <h2 style="margin:0 0 16px;font-size:18px;color:#2c3e50;border-bottom:2px solid #e74c3c;padding-bottom:8px;">What's Not</h2>
         <table style="width:100%;border-collapse:collapse;"><tr>
             ${badMovies.map(posterCard).join('')}
         </tr></table>
