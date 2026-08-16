@@ -508,3 +508,93 @@ button:hover {
         font-size: 1.3rem;
     }
 }
+
+/* ── Poster hover preview ── */
+.poster-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 500;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    overflow: hidden;
+    width: 180px;
+}
+
+.poster-preview--visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.poster-preview img {
+    display: block;
+    width: 180px;
+    height: auto;
+}
+
+@media (hover: none) {
+    /* Hide hover preview on touch devices */
+    .poster-preview { display: none; }
+}
+
+/* ── Poster modal ── */
+.poster-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.poster-modal[hidden] {
+    display: none;
+}
+
+.poster-modal__img {
+    max-width: min(500px, 90vw);
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+    display: block;
+}
+
+.poster-modal__close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.6rem;
+    line-height: 1;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.poster-modal__close:hover {
+    background: rgba(255,255,255,0.3);
+    transform: none;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Make poster cursor a pointer to signal it's clickable */
+img.movie-poster:not(.movie-poster--placeholder) {
+    cursor: pointer;
+}

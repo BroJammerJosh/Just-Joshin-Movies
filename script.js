@@ -71,6 +71,67 @@ class MovieTracker {
                 searchSuggestions.style.display = 'none';
             }
         });
+
+        // Poster hover preview and click modal
+        this.setupPosterInteractions();
+    }
+
+    setupPosterInteractions() {
+        const preview = document.getElementById('posterPreview');
+        const previewImg = document.getElementById('posterPreviewImg');
+        const modal = document.getElementById('posterModal');
+        const modalImg = document.getElementById('posterModalImg');
+        const modalClose = document.getElementById('posterModalClose');
+
+        let hideTimeout;
+
+        // Use event delegation on the movies list for hover + click
+        const moviesList = document.getElementById('moviesList');
+
+        moviesList.addEventListener('mouseover', (e) => {
+            const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder)');
+            if (!img) return;
+            clearTimeout(hideTimeout);
+            const fullSrc = img.src.replace('/w92/', '/w342/');
+            previewImg.src = fullSrc;
+            const rect = img.getBoundingClientRect();
+            preview.style.top = `${window.scrollY + rect.top}px`;
+            preview.style.left = `${window.scrollX + rect.right + 12}px`;
+            preview.classList.add('poster-preview--visible');
+        });
+
+        moviesList.addEventListener('mouseout', (e) => {
+            const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder)');
+            if (!img) return;
+            hideTimeout = setTimeout(() => {
+                preview.classList.remove('poster-preview--visible');
+            }, 120);
+        });
+
+        moviesList.addEventListener('click', (e) => {
+            const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder)');
+            if (!img) return;
+            preview.classList.remove('poster-preview--visible');
+            modalImg.src = img.src.replace('/w92/', '/w500/');
+            modalImg.alt = img.closest('.table-row')?.querySelector('.movie-title')?.textContent || '';
+            modal.hidden = false;
+            document.body.classList.add('modal-open');
+            modalClose.focus();
+        });
+
+        // Close modal
+        const closeModal = () => {
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+        };
+
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.hidden) closeModal();
+        });
     }
 
     handleSearch(searchTerm) {

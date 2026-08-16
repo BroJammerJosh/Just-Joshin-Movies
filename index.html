@@ -100,6 +100,17 @@
         </div>
     </div>
 
+    <!-- Poster hover preview -->
+    <div id="posterPreview" class="poster-preview" aria-hidden="true">
+        <img id="posterPreviewImg" src="" alt="">
+    </div>
+
+    <!-- Poster modal (click) -->
+    <div id="posterModal" class="poster-modal" role="dialog" aria-modal="true" aria-label="Movie poster" hidden>
+        <button class="poster-modal__close" id="posterModalClose" aria-label="Close">&times;</button>
+        <img id="posterModalImg" class="poster-modal__img" src="" alt="">
+    </div>
+
     <script src="script.js"></script>
     <script>
         document.querySelectorAll('.system-toggle').forEach(toggle => {
