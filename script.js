@@ -235,7 +235,7 @@ class MovieTracker {
                             const posterUrl = this.posterCache[movie.title];
                             const posterHtml = posterUrl
                                 ? `<img class="movie-poster" src="${posterUrl}" alt="" loading="lazy" width="46" height="69">`
-                                : `<div class="movie-poster movie-poster--placeholder" data-title="${this.escapeHtml(movie.title)}"></div>`;
+                                : `<img class="movie-poster movie-poster--placeholder" src="poster-placeholder.png" alt="No poster available" data-title="${this.escapeHtml(movie.title)}" loading="lazy" width="46" height="69">`;
                             return `
                             <div class="table-row">
                                 <div class="col-title">
@@ -271,16 +271,11 @@ class MovieTracker {
         uncached.forEach(movie => {
             this.fetchPoster(movie.title).then(posterUrl => {
                 if (!posterUrl) return;
-                // Swap all placeholders for this title (may appear in multiple views)
-                document.querySelectorAll(`.movie-poster--placeholder[data-title="${CSS.escape(movie.title)}"]`).forEach(placeholder => {
-                    const img = document.createElement('img');
-                    img.className = 'movie-poster';
-                    img.src = posterUrl;
-                    img.alt = '';
-                    img.loading = 'lazy';
-                    img.width = 46;
-                    img.height = 69;
-                    placeholder.replaceWith(img);
+                // Swap placeholder img for real poster img
+                document.querySelectorAll(`img.movie-poster--placeholder[data-title="${CSS.escape(movie.title)}"]`).forEach(placeholder => {
+                    placeholder.src = posterUrl;
+                    placeholder.alt = '';
+                    placeholder.classList.remove('movie-poster--placeholder');
                 });
             });
         });

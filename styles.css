@@ -334,7 +334,8 @@ button:hover {
     height: 69px;
     border-radius: 4px;
     flex-shrink: 0;
-    background: #e9ecef;
+    object-fit: contain;
+    background: #f1f3f5;
 }
 
 .movie-title-group {
