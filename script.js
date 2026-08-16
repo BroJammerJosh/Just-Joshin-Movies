@@ -346,7 +346,8 @@ class MovieTracker {
                 if (!posterUrl) return;
                 // Swap placeholder img for real poster img
                 document.querySelectorAll(`img.movie-poster--placeholder[data-title="${CSS.escape(movie.title)}"]`).forEach(placeholder => {
-                    placeholder.src = posterUrl;
+                    const isAward = placeholder.classList.contains('award-poster');
+                    placeholder.src = isAward ? posterUrl.replace('/w92/', '/w342/') : posterUrl;
                     placeholder.alt = '';
                     placeholder.classList.remove('movie-poster--placeholder');
                 });
@@ -406,8 +407,9 @@ class MovieTracker {
 
             const featuredHtml = featured.map(award => {
                 const posterUrl = this.posterCache[award.movieTitle];
-                const posterHtml = posterUrl
-                    ? `<img class="award-poster" src="${posterUrl}" alt="${this.escapeHtml(award.movieTitle)}" loading="lazy">`
+                const hiResPosterUrl = posterUrl ? posterUrl.replace('/w92/', '/w342/') : null;
+                const posterHtml = hiResPosterUrl
+                    ? `<img class="award-poster" src="${hiResPosterUrl}" alt="${this.escapeHtml(award.movieTitle)}" loading="lazy">`
                     : `<img class="award-poster movie-poster--placeholder" src="poster-placeholder.png" alt="No poster available" data-title="${this.escapeHtml(award.movieTitle)}" loading="lazy">`;
                 return `
                 <div class="award-card">
@@ -421,8 +423,9 @@ class MovieTracker {
                 <div class="awards-secondary">
                     ${secondary.map(award => {
                         const posterUrl = this.posterCache[award.movieTitle];
-                        const posterHtml = posterUrl
-                            ? `<img class="award-poster award-poster--small" src="${posterUrl}" alt="${this.escapeHtml(award.movieTitle)}" loading="lazy">`
+                        const hiResPosterUrl = posterUrl ? posterUrl.replace('/w92/', '/w342/') : null;
+                        const posterHtml = hiResPosterUrl
+                            ? `<img class="award-poster award-poster--small" src="${hiResPosterUrl}" alt="${this.escapeHtml(award.movieTitle)}" loading="lazy">`
                             : `<img class="award-poster award-poster--small movie-poster--placeholder" src="poster-placeholder.png" alt="No poster available" data-title="${this.escapeHtml(award.movieTitle)}" loading="lazy">`;
                         return `
                         <div class="award-card award-card--small">
