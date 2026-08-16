@@ -126,11 +126,26 @@ header p {
     border-top: 1px solid #e9ecef;
 }
 
+.under-construction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
 .under-construction-img {
     display: block;
     max-width: 100%;
     height: auto;
     border-radius: 8px;
+}
+
+.under-construction-text {
+    font-size: 0.95rem;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    margin: 0;
 }
 
 .movies-section h2 {
