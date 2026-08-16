@@ -246,19 +246,24 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
     function posterCard(movie) {
         const poster = posterCache[movie.title];
         const imgHtml = poster
-            ? `<img src="${poster}" alt="${escapeHtml(movie.title)}" width="120" style="border-radius:6px;display:block;margin:0 auto 8px;">`
+            ? `<img src="${poster}" alt="${escapeHtml(movie.title)}" width="120" style="border-radius:6px;display:block;margin:0 auto 10px;">`
             : '';
         return `
-        <td style="text-align:center;vertical-align:top;padding:0 16px 24px;">
+        <td style="text-align:center;vertical-align:top;padding:0 16px 24px;width:160px;">
             ${imgHtml}
-            <div style="font-size:13px;font-weight:600;color:#2c3e50;max-width:130px;margin:0 auto;">${escapeHtml(movie.title)}</div>
-            ${movie.notes ? `<div style="font-size:11px;color:#888;margin-top:4px;max-width:130px;margin:4px auto 0;font-style:italic;">${escapeHtml(movie.notes)}</div>` : ''}
+            <div style="font-size:14px;font-weight:600;color:#2c3e50;margin-bottom:6px;">${escapeHtml(movie.title)}</div>
+            ${movie.notes ? `<div style="font-size:13px;color:#555;line-height:1.5;font-style:italic;">${escapeHtml(movie.notes)}</div>` : ''}
         </td>`;
     }
 
     // Helper: render a simple list row for score 1 and 0
     function listRow(movie) {
-        return `<tr><td style="padding:6px 0;font-size:14px;color:#444;border-bottom:1px solid #f1f3f4;">${escapeHtml(movie.title)}${movie.notes ? ` <span style="color:#999;font-size:12px;font-style:italic;">— ${escapeHtml(movie.notes)}</span>` : ''}</td></tr>`;
+        return `<tr>
+            <td style="padding:8px 0;border-bottom:1px solid #f1f3f4;">
+                <div style="font-size:14px;font-weight:600;color:#2c3e50;">${escapeHtml(movie.title)}</div>
+                ${movie.notes ? `<div style="font-size:13px;color:#555;line-height:1.5;font-style:italic;margin-top:3px;">${escapeHtml(movie.notes)}</div>` : ''}
+            </td>
+        </tr>`;
     }
 
     function escapeHtml(str) {
