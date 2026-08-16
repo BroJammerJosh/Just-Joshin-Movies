@@ -613,3 +613,135 @@ body.modal-open {
 img.movie-poster:not(.movie-poster--placeholder) {
     cursor: pointer;
 }
+
+/* ── Awards Section ── */
+.awards-year-section {
+    border-top: 1px solid #e9ecef;
+}
+
+.awards-year-section:first-child {
+    border-top: none;
+}
+
+.awards-year-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 12px 0;
+    margin: 0;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    transition: none;
+}
+
+.awards-year-toggle:hover {
+    background: none;
+    transform: none;
+    opacity: 0.75;
+}
+
+.awards-year-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.awards-year-body {
+    padding-bottom: 20px;
+}
+
+/* Featured awards row — Hot Joshy left, Shameful Joshua right */
+.awards-featured {
+    display: flex;
+    gap: 40px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 16px 0 8px;
+}
+
+.award-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.award-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+}
+
+.award-movie-title {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #666;
+    text-align: center;
+}
+
+.award-poster {
+    width: 180px;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: block;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.award-poster:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Secondary awards (future additions) */
+.awards-secondary {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid #f1f3f4;
+    margin-top: 12px;
+}
+
+.award-card--small {
+    flex: 0 0 auto;
+}
+
+.award-name--small {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.award-poster--small {
+    width: 120px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .awards-featured {
+        gap: 24px;
+        justify-content: center;
+    }
+
+    .award-poster {
+        width: 140px;
+    }
+
+    .award-poster--small {
+        width: 100px;
+    }
+
+    .awards-secondary {
+        justify-content: center;
+    }
+}

@@ -7,6 +7,7 @@ const POSTER_CACHE_VERSION = 2; // bump this to bust stale cache
 class MovieTracker {
     constructor() {
         this.movies = JSON.parse(localStorage.getItem('movies')) || [];
+        this.awards = JSON.parse(localStorage.getItem('awards')) || [];
         // Bust old cache if version doesn't match
         const cacheVersion = parseInt(localStorage.getItem('tmdb_poster_cache_version') || '1');
         if (cacheVersion < POSTER_CACHE_VERSION) {
@@ -23,6 +24,9 @@ class MovieTracker {
         // Render immediately from whatever is cached locally
         if (this.movies.length > 0) {
             this.displayMovies();
+        }
+        if (this.awards.length > 0) {
+            this.displayAwards();
         }
         // Then fetch fresh data from Google Sheets in the background
         this.loadFromGoogleSheets();
@@ -85,10 +89,11 @@ class MovieTracker {
 
         let hideTimeout;
 
-        // Use event delegation on the movies list for hover + click
+        // Use event delegation on the movies list AND awards section for hover + click
         const moviesList = document.getElementById('moviesList');
+        const awardsBody = document.getElementById('awards-body');
 
-        moviesList.addEventListener('mouseover', (e) => {
+        const handleMouseOver = (e) => {
             const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder)');
             if (!img) return;
             clearTimeout(hideTimeout);
@@ -98,26 +103,33 @@ class MovieTracker {
             preview.style.top = `${window.scrollY + rect.top}px`;
             preview.style.left = `${window.scrollX + rect.right + 12}px`;
             preview.classList.add('poster-preview--visible');
-        });
+        };
 
-        moviesList.addEventListener('mouseout', (e) => {
+        const handleMouseOut = (e) => {
             const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder)');
             if (!img) return;
             hideTimeout = setTimeout(() => {
                 preview.classList.remove('poster-preview--visible');
             }, 120);
-        });
+        };
 
-        moviesList.addEventListener('click', (e) => {
-            const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder)');
+        const handleClick = (e) => {
+            const img = e.target.closest('img.movie-poster:not(.movie-poster--placeholder), img.award-poster:not(.movie-poster--placeholder)');
             if (!img) return;
             preview.classList.remove('poster-preview--visible');
-            modalImg.src = img.src.replace('/w92/', '/w500/');
-            modalImg.alt = img.closest('.table-row')?.querySelector('.movie-title')?.textContent || '';
+            // Use w500 version for full size
+            const fullSrc = img.src.replace('/w92/', '/w500/').replace('/w342/', '/w500/');
+            modalImg.src = fullSrc;
+            modalImg.alt = img.alt || '';
             modal.hidden = false;
             document.body.classList.add('modal-open');
             modalClose.focus();
-        });
+        };
+
+        moviesList.addEventListener('mouseover', handleMouseOver);
+        moviesList.addEventListener('mouseout', handleMouseOut);
+        moviesList.addEventListener('click', handleClick);
+        awardsBody.addEventListener('click', handleClick);
 
         // Close modal
         const closeModal = () => {
@@ -369,6 +381,91 @@ class MovieTracker {
         localStorage.setItem('movies', JSON.stringify(this.movies));
     }
 
+    saveAwards() {
+        localStorage.setItem('awards', JSON.stringify(this.awards));
+    }
+
+    displayAwards() {
+        const awardsBody = document.getElementById('awards-body');
+        if (!awardsBody || this.awards.length === 0) return;
+
+        // Group awards by year, newest first
+        const byYear = {};
+        this.awards.forEach(a => {
+            if (!byYear[a.year]) byYear[a.year] = [];
+            byYear[a.year].push(a);
+        });
+        const sortedYears = Object.keys(byYear).sort((a, b) => b - a);
+
+        // The first two awards per year are the "featured" (Hot Joshy + Shameful Joshua)
+        // Any additional awards are "secondary"
+        let html = sortedYears.map(year => {
+            const yearAwards = byYear[year];
+            const featured = yearAwards.slice(0, 2);
+            const secondary = yearAwards.slice(2);
+
+            const featuredHtml = featured.map(award => {
+                const posterUrl = this.posterCache[award.movieTitle];
+                const posterHtml = posterUrl
+                    ? `<img class="award-poster" src="${posterUrl}" alt="${this.escapeHtml(award.movieTitle)}" loading="lazy">`
+                    : `<img class="award-poster movie-poster--placeholder" src="poster-placeholder.png" alt="No poster available" data-title="${this.escapeHtml(award.movieTitle)}" loading="lazy">`;
+                return `
+                <div class="award-card">
+                    <div class="award-name">${this.escapeHtml(award.awardName)}</div>
+                    <div class="award-movie-title">${this.escapeHtml(award.movieTitle)}</div>
+                    ${posterHtml}
+                </div>`;
+            }).join('');
+
+            const secondaryHtml = secondary.length ? `
+                <div class="awards-secondary">
+                    ${secondary.map(award => {
+                        const posterUrl = this.posterCache[award.movieTitle];
+                        const posterHtml = posterUrl
+                            ? `<img class="award-poster award-poster--small" src="${posterUrl}" alt="${this.escapeHtml(award.movieTitle)}" loading="lazy">`
+                            : `<img class="award-poster award-poster--small movie-poster--placeholder" src="poster-placeholder.png" alt="No poster available" data-title="${this.escapeHtml(award.movieTitle)}" loading="lazy">`;
+                        return `
+                        <div class="award-card award-card--small">
+                            <div class="award-name award-name--small">${this.escapeHtml(award.awardName)}</div>
+                            <div class="award-movie-title">${this.escapeHtml(award.movieTitle)}</div>
+                            ${posterHtml}
+                        </div>`;
+                    }).join('')}
+                </div>` : '';
+
+            const bodyId = `awards-year-body-${year}`;
+            const toggleId = `awards-year-toggle-${year}`;
+            return `
+            <div class="awards-year-section">
+                <button class="awards-year-toggle" id="${toggleId}" aria-expanded="false" aria-controls="${bodyId}">
+                    <span class="awards-year-label">${year}</span>
+                    <span class="toggle-arrow" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="awards-year-body" id="${bodyId}" hidden>
+                    <div class="awards-featured">
+                        ${featuredHtml}
+                    </div>
+                    ${secondaryHtml}
+                </div>
+            </div>`;
+        }).join('');
+
+        awardsBody.innerHTML = html;
+
+        // Wire up year toggles
+        awardsBody.querySelectorAll('.awards-year-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!expanded));
+                document.getElementById(btn.getAttribute('aria-controls')).hidden = expanded;
+            });
+        });
+
+        // Fetch missing posters for award movies in the background
+        const awardMovies = this.awards.map(a => ({ title: a.movieTitle }));
+        this.fetchAndInjectPosters(awardMovies);
+    }
+
     savePosterCache() {
         localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(this.posterCache));
     }
@@ -403,33 +500,29 @@ class MovieTracker {
         const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzR_o8AXukODSdmk7t4XNdKcaujboBWlspoqcuYBi7I8KgozKE37wVmfcpVJR-t2FuNNA/exec';
 
         try {
-            const response = await fetch(GOOGLE_SHEETS_URL, {
-                method: 'GET'
-            });
+            const response = await fetch(GOOGLE_SHEETS_URL, { method: 'GET' });
 
             if (response.ok) {
                 const result = await response.json();
                 if (result.success && result.movies) {
-                    // Replace local data with Google Sheets data to avoid duplicates
-                    const sheetMovies = result.movies;
-                    
-                    // Create a map to remove duplicates from sheet data itself
                     const movieMap = new Map();
-                    sheetMovies.forEach(movie => {
+                    result.movies.forEach(movie => {
                         const key = `${movie.title}-${movie.year}`;
-                        if (!movieMap.has(key)) {
-                            movieMap.set(key, movie);
-                        }
+                        if (!movieMap.has(key)) movieMap.set(key, movie);
                     });
-                    
-                    // Convert map back to array
                     this.movies = Array.from(movieMap.values());
                     this.saveMovies();
                     this.displayMovies();
                     console.log('Successfully loaded movies from Google Sheets');
                 } else {
-                    // Fallback to local storage
                     this.displayMovies();
+                }
+
+                // Load awards if present
+                if (result.awards && result.awards.length > 0) {
+                    this.awards = result.awards;
+                    this.saveAwards();
+                    this.displayAwards();
                 }
             } else {
                 console.warn('Failed to load from Google Sheets, using local data');

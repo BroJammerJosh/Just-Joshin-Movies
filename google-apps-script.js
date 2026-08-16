@@ -52,6 +52,7 @@ function doGet(e) {
         // Get all sheets (tabs) in the spreadsheet
         const sheets = spreadsheet.getSheets();
         const allMovies = [];
+        const allAwards = [];
 
         sheets.forEach(sheet => {
             const sheetName = sheet.getName();
@@ -70,27 +71,44 @@ function doGet(e) {
                     if (!row[0] || row[0].toString().trim() === '') return null;
 
                     return {
-                        id: (year * 10000) + (index + 1), // Use year and row position for consistent ordering
-                        title: row[0].toString().trim(), // Title from column A
-                        score: parseInt(row[1]) || 0, // Score from column B
-                        notes: row[2] ? row[2].toString().trim() : '', // Notes from column C only
-                        year: year, // Store the actual year from tab name
-                        date: `${year}-01-01`, // Use January 1st of the year as default date
+                        id: (year * 10000) + (index + 1),
+                        title: row[0].toString().trim(),
+                        score: parseInt(row[1]) || 0,
+                        notes: row[2] ? row[2].toString().trim() : '',
+                        year: year,
+                        date: `${year}-01-01`,
                         dateAdded: new Date().toISOString()
                     };
-                }).filter(movie => movie && movie.title); // Filter out null and empty rows
+                }).filter(movie => movie && movie.title);
 
                 allMovies.push(...yearMovies);
+            }
+
+            // Read the Awards tab
+            if (sheetName === 'Awards') {
+                const data = sheet.getDataRange().getValues();
+
+                // Expected columns: Year | Award Name | Movie Title
+                // Skip header row
+                data.slice(1).forEach(row => {
+                    const year = row[0] ? parseInt(row[0].toString().trim()) : null;
+                    const awardName = row[1] ? row[1].toString().trim() : '';
+                    const movieTitle = row[2] ? row[2].toString().trim() : '';
+
+                    if (!year || !awardName || !movieTitle) return;
+
+                    allAwards.push({ year, awardName, movieTitle });
+                });
             }
         });
 
         return ContentService
-            .createTextOutput(JSON.stringify({ success: true, movies: allMovies }))
+            .createTextOutput(JSON.stringify({ success: true, movies: allMovies, awards: allAwards }))
             .setMimeType(ContentService.MimeType.JSON);
 
     } catch (error) {
         return ContentService
-            .createTextOutput(JSON.stringify({ success: false, error: error.toString(), movies: [] }))
+            .createTextOutput(JSON.stringify({ success: false, error: error.toString(), movies: [], awards: [] }))
             .setMimeType(ContentService.MimeType.JSON);
     }
 }
