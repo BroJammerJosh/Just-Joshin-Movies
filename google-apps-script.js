@@ -453,7 +453,7 @@ function buildLaunchEmailHtml(firstName, poster1, poster2) {
 
     <tr><td style="padding:32px 40px;">
 
-        <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">Congratulations!!</p>
+        <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">Congratulations, ${escapeHtml(firstName)}!!</p>
 
         <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">You are a founding member of <strong>The Joshening</strong> — a monthly newsletter providing you all the recent activity on Just Joshin' At the Movies.</p>
 
