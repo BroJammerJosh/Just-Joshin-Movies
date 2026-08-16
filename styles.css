@@ -126,6 +126,13 @@ header p {
     border-top: 1px solid #e9ecef;
 }
 
+.under-construction-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
 .movies-section h2 {
     margin-bottom: 25px;
     color: #2c3e50;
