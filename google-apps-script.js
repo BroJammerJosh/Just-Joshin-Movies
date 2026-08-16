@@ -209,7 +209,7 @@ function sendMonthlyNewsletter() {
                 posterCache
             });
 
-            GmailApp.sendEmail(email, `Just Joshin' at the Movies — ${prevMonthName} ${prevMonthYear} Update`, '', {
+            GmailApp.sendEmail(email, `The Joshening - ${prevMonthName} Edition`, '', {
                 htmlBody: html,
                 name: "Just Joshin' at the Movies"
             });
@@ -315,7 +315,7 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
 
     <!-- Header -->
     <tr><td style="background:linear-gradient(135deg,#2c3e50,#34495e);padding:32px 40px;text-align:center;">
-        <h1 style="margin:0 0 6px;color:white;font-size:24px;">Just Joshin' at the Movies</h1>
+        <h1 style="margin:0 0 6px;font-size:24px;"><a href="${SITE_URL}" style="color:white;text-decoration:none;">Just Joshin' at the Movies</a></h1>
         <p style="margin:0;color:rgba(255,255,255,0.85);font-size:14px;">${prevMonthName} ${prevMonthYear} Update</p>
     </td></tr>
 
