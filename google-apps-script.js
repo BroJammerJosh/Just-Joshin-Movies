@@ -372,3 +372,107 @@ function jsonResponse(obj) {
         .createTextOutput(JSON.stringify(obj))
         .setMimeType(ContentService.MimeType.JSON);
 }
+
+// ─────────────────────────────────────────────
+// sendLaunchEmail — run ONCE to send the launch email to all subscribers
+// ─────────────────────────────────────────────
+function sendLaunchEmail() {
+    const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+    const subSheet = spreadsheet.getSheetByName('Subscribers');
+    if (!subSheet) {
+        Logger.log('No Subscribers sheet found.');
+        return;
+    }
+
+    const subscribers = subSheet.getDataRange().getValues().slice(1)
+        .filter(row => row[1] && row[1].toString().trim() !== '');
+
+    if (subscribers.length === 0) {
+        Logger.log('No subscribers found.');
+        return;
+    }
+
+    const poster1 = fetchTmdbPoster('Nirvanna the Band the Show the Movie');
+    const poster2 = fetchTmdbPoster('Drive Angry');
+
+    subscribers.forEach(row => {
+        const firstName = row[0].toString().trim();
+        const email = row[1].toString().trim();
+
+        try {
+            const html = buildLaunchEmailHtml(firstName, poster1, poster2);
+            GmailApp.sendEmail(email, "The Joshening Has Launched!", '', {
+                htmlBody: html,
+                name: "Just Joshin' at the Movies"
+            });
+            Logger.log(`Sent launch email to ${email}`);
+        } catch (err) {
+            Logger.log(`Failed to send to ${email}: ${err}`);
+        }
+    });
+
+    Logger.log(`Launch email sent to ${subscribers.length} subscriber(s).`);
+}
+
+function buildLaunchEmailHtml(firstName, poster1, poster2) {
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function movieBlock(title, score, notes, poster) {
+        const scoreColor = score >= 1 ? '#27ae60' : '#e74c3c';
+        const imgHtml = poster
+            ? `<img src="${poster}" alt="${escapeHtml(title)}" width="120" style="border-radius:6px;display:block;margin:0 0 12px;">`
+            : '';
+        return `
+        <table style="width:100%;border-collapse:collapse;margin-bottom:28px;">
+            <tr>
+                <td style="vertical-align:top;padding-right:20px;width:140px;">${imgHtml}</td>
+                <td style="vertical-align:top;">
+                    <div style="font-size:16px;font-weight:700;color:#2c3e50;margin-bottom:4px;">${escapeHtml(title)}</div>
+                    <div style="font-size:13px;font-weight:600;color:${scoreColor};margin-bottom:8px;">Score: ${score}</div>
+                    <div style="font-size:14px;color:#555;line-height:1.6;font-style:italic;">${escapeHtml(notes)}</div>
+                </td>
+            </tr>
+        </table>`;
+    }
+
+    return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f4f8;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f8;padding:32px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+    <tr><td style="background:linear-gradient(135deg,#2c3e50,#34495e);padding:32px 40px;text-align:center;">
+        <h1 style="margin:0 0 6px;font-size:24px;"><a href="${SITE_URL}" style="color:white;text-decoration:none;">Just Joshin' at the Movies</a></h1>
+        <p style="margin:0;color:rgba(255,255,255,0.85);font-size:14px;">The Joshening Has Launched!</p>
+    </td></tr>
+
+    <tr><td style="padding:32px 40px;">
+
+        <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">Congratulations!!</p>
+
+        <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">You are a founding member of <strong>The Joshening</strong> — a monthly newsletter providing you all the recent activity on Just Joshin' At the Movies.</p>
+
+        <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.6;">You'll receive updates on the first of every month highlighting some of the best and worst of what Josh is watching. Stay tuned so you don't miss gems like these:</p>
+
+        ${movieBlock('Nirvanna the Band the Show the Movie', 2, "I'd watch this over Avengers: Endgame any day.", poster1)}
+        ${movieBlock('Drive Angry', -1, "Worst Nic Cage movie I've ever seen. Amber Heard co-stars and is somehow the only person in the movie who doesn't shit the bed.", poster2)}
+
+        <p style="margin:28px 0 0;font-size:15px;color:#444;line-height:1.6;">Don't forget to visit the site regularly as we (Josh) are always adding new features to make the site a better-than-average experience. Please don't unsubscribe, it will hurt our (Josh's) feelings.</p>
+
+    </td></tr>
+
+    <tr><td style="padding:20px 40px;text-align:center;background:#f8f9fa;border-top:1px solid #e9ecef;">
+        <a href="${SITE_URL}" style="color:#667eea;font-size:13px;text-decoration:none;">Visit the full site →</a>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
