@@ -38,6 +38,32 @@
             </div>
         </div>
 
+        <div class="system-section">
+            <button class="system-toggle" aria-expanded="false" aria-controls="lifetime-stats-body">
+                <div class="system-title-group">
+                    <h2>Lifetime Stats</h2>
+                    <span class="system-subtitle">All the movies over the years</span>
+                </div>
+                <span class="toggle-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="system-explanation" id="lifetime-stats-body" hidden>
+                <!-- content coming soon -->
+            </div>
+        </div>
+
+        <div class="system-section">
+            <button class="system-toggle" aria-expanded="false" aria-controls="awards-body">
+                <div class="system-title-group">
+                    <h2>Awards</h2>
+                    <span class="system-subtitle">The Good, The Bad, and The Ugly of every year</span>
+                </div>
+                <span class="toggle-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="system-explanation" id="awards-body" hidden>
+                <!-- content coming soon -->
+            </div>
+        </div>
+
         <div class="movies-section">
             <h2>The Movies</h2>
             <div class="filter-sort">
@@ -76,12 +102,12 @@
 
     <script src="script.js"></script>
     <script>
-        const toggle = document.querySelector('.system-toggle');
-        const explanation = document.getElementById('system-explanation');
-        toggle.addEventListener('click', () => {
-            const expanded = toggle.getAttribute('aria-expanded') === 'true';
-            toggle.setAttribute('aria-expanded', String(!expanded));
-            explanation.hidden = expanded;
+        document.querySelectorAll('.system-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                document.getElementById(toggle.getAttribute('aria-controls')).hidden = expanded;
+            });
         });
     </script>
 </body>
