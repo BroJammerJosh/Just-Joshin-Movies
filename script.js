@@ -78,6 +78,91 @@ class MovieTracker {
 
         // Poster hover preview and click modal
         this.setupPosterInteractions();
+
+        // Newsletter signup
+        this.setupSignup();
+    }
+
+    setupSignup() {
+        const btn = document.getElementById('getUpdatesBtn');
+        const modal = document.getElementById('signupModal');
+        const closeBtn = document.getElementById('signupModalClose');
+        const form = document.getElementById('signupForm');
+        const message = document.getElementById('signupMessage');
+        const submitBtn = document.getElementById('signupSubmit');
+
+        const openModal = () => {
+            modal.hidden = false;
+            document.body.classList.add('modal-open');
+            document.getElementById('signupFirstName').focus();
+        };
+
+        const closeModal = () => {
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+            form.reset();
+            message.hidden = true;
+            message.className = 'signup-form__message';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Subscribe';
+        };
+
+        btn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('signupFirstName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+
+            if (!firstName || !email) {
+                this.showSignupMessage('Please fill in both fields.', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Subscribing...';
+
+            try {
+                const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzR_o8AXukODSdmk7t4XNdKcaujboBWlspoqcuYBi7I8KgozKE37wVmfcpVJR-t2FuNNA/exec';
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'subscribe', firstName, email })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    this.showSignupMessage(`You're in, ${this.escapeHtml(firstName)}! You'll get your first update on the 1st of next month.`, 'success');
+                    submitBtn.textContent = 'Subscribed!';
+                    form.querySelector('input').blur();
+                } else if (result.alreadySubscribed) {
+                    this.showSignupMessage('That email is already subscribed.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Subscribe';
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+            } catch (err) {
+                console.error('Signup error:', err);
+                this.showSignupMessage('Something went wrong. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Subscribe';
+            }
+        });
+    }
+
+    showSignupMessage(text, type) {
+        const message = document.getElementById('signupMessage');
+        message.textContent = text;
+        message.className = `signup-form__message ${type}`;
+        message.hidden = false;
     }
 
     setupPosterInteractions() {

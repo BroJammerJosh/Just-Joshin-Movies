@@ -753,3 +753,171 @@ img.movie-poster:not(.movie-poster--placeholder) {
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
 }
+
+/* ── Get Updates button (banner overlay) ── */
+.get-updates-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    z-index: 10;
+}
+
+.get-updates-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+/* ── Newsletter signup modal ── */
+.signup-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.signup-modal[hidden] {
+    display: none;
+}
+
+.signup-modal__box {
+    background: white;
+    border-radius: 12px;
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    box-shadow: 0 20px 48px rgba(0,0,0,0.25);
+}
+
+.signup-modal__close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    color: #888;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    box-shadow: none;
+    transition: color 0.15s;
+}
+
+.signup-modal__close:hover {
+    color: #2c3e50;
+    background: none;
+    transform: none;
+}
+
+.signup-modal__title {
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.signup-modal__subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.signup-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.signup-form__field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+}
+
+.signup-form__field input {
+    padding: 10px 14px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.signup-form__field input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.signup-form__message {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.signup-form__message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.signup-form__message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.signup-form__submit {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    margin-top: 4px;
+}
+
+.signup-form__submit:hover {
+    transform: translateY(-2px);
+}
+
+.signup-form__submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (max-width: 768px) {
+    .signup-modal__box {
+        padding: 28px 24px;
+    }
+
+    .get-updates-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+}

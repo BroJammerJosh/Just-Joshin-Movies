@@ -10,6 +10,7 @@
     <div class="container">
         <div class="banner-image">
             <img src="banner.jpg" alt="Movie editing room banner" />
+            <button class="get-updates-btn" id="getUpdatesBtn" aria-haspopup="dialog">Get Updates</button>
         </div>
         
         <header>
@@ -107,6 +108,27 @@
             <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fbrojammerjosh.github.io%2FJust-Joshin-Movies%2F&count_bg=%23667EEA&title_bg=%23555555&icon=film.svg&icon_color=%23FFFFFF&title=Visits&edge_flat=false" alt="Visit counter"/>
         </a>
     </footer>
+
+    <!-- Newsletter signup modal -->
+    <div id="signupModal" class="signup-modal" role="dialog" aria-modal="true" aria-labelledby="signupModalTitle" hidden>
+        <div class="signup-modal__box">
+            <button class="signup-modal__close" id="signupModalClose" aria-label="Close">&times;</button>
+            <h2 class="signup-modal__title" id="signupModalTitle">Get Monthly Updates</h2>
+            <p class="signup-modal__subtitle">A monthly digest of new movies, scores, and awards — delivered to your inbox on the first of every month.</p>
+            <form id="signupForm" class="signup-form" novalidate>
+                <div class="signup-form__field">
+                    <label for="signupFirstName">First Name</label>
+                    <input type="text" id="signupFirstName" name="firstName" placeholder="Your first name" required autocomplete="given-name">
+                </div>
+                <div class="signup-form__field">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+                <div id="signupMessage" class="signup-form__message" hidden></div>
+                <button type="submit" class="signup-form__submit" id="signupSubmit">Subscribe</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Poster hover preview -->
     <div id="posterPreview" class="poster-preview" aria-hidden="true">
