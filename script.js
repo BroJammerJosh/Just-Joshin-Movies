@@ -20,6 +20,11 @@ class MovieTracker {
 
     init() {
         this.setupEventListeners();
+        // Render immediately from whatever is cached locally
+        if (this.movies.length > 0) {
+            this.displayMovies();
+        }
+        // Then fetch fresh data from Google Sheets in the background
         this.loadFromGoogleSheets();
     }
 
@@ -195,9 +200,6 @@ class MovieTracker {
             return;
         }
 
-        // Fetch any missing posters before rendering
-        await this.fetchMissingPosters(moviesToShow);
-
         // Group movies by year
         const moviesByYear = {};
         moviesToShow.forEach(movie => {
@@ -215,10 +217,7 @@ class MovieTracker {
 
         sortedYears.forEach(year => {
             const yearMovies = moviesByYear[year];
-            
-            // Sort movies within each year by sheet order (newest entries first)
             yearMovies.sort((a, b) => b.id - a.id);
-            
             const netScore = yearMovies.reduce((sum, movie) => sum + movie.score, 0);
 
             html += `
@@ -227,18 +226,16 @@ class MovieTracker {
                         <h3>${year}</h3>
                         <div class="net-score">Net Score: <span class="score-value ${netScore >= 0 ? 'positive' : 'negative'}">${netScore}</span></div>
                     </div>
-                    
                     <div class="movies-table">
                         <div class="table-header">
                             <div class="col-title">Title</div>
                             <div class="col-score">Score</div>
                         </div>
-                        
                         ${yearMovies.map(movie => {
                             const posterUrl = this.posterCache[movie.title];
                             const posterHtml = posterUrl
                                 ? `<img class="movie-poster" src="${posterUrl}" alt="" loading="lazy" width="46" height="69">`
-                                : `<div class="movie-poster movie-poster--placeholder"></div>`;
+                                : `<div class="movie-poster movie-poster--placeholder" data-title="${this.escapeHtml(movie.title)}"></div>`;
                             return `
                             <div class="table-row">
                                 <div class="col-title">
@@ -258,7 +255,35 @@ class MovieTracker {
             `;
         });
 
+        // Render immediately — no waiting for posters
         moviesList.innerHTML = html;
+
+        // Fetch missing posters in the background and swap placeholders as they arrive
+        this.fetchAndInjectPosters(moviesToShow);
+    }
+
+    fetchAndInjectPosters(movies) {
+        const uncached = movies.filter(m =>
+            !Object.prototype.hasOwnProperty.call(this.posterCache, m.title)
+        );
+        if (uncached.length === 0) return;
+
+        uncached.forEach(movie => {
+            this.fetchPoster(movie.title).then(posterUrl => {
+                if (!posterUrl) return;
+                // Swap all placeholders for this title (may appear in multiple views)
+                document.querySelectorAll(`.movie-poster--placeholder[data-title="${CSS.escape(movie.title)}"]`).forEach(placeholder => {
+                    const img = document.createElement('img');
+                    img.className = 'movie-poster';
+                    img.src = posterUrl;
+                    img.alt = '';
+                    img.loading = 'lazy';
+                    img.width = 46;
+                    img.height = 69;
+                    placeholder.replaceWith(img);
+                });
+            });
+        });
     }
 
     formatDateShort(dateString) {
@@ -316,23 +341,6 @@ class MovieTracker {
             this.savePosterCache();
             return null;
         }
-    }
-
-    async fetchMissingPosters(movies) {
-        const uncached = movies.filter(m => {
-            return !Object.prototype.hasOwnProperty.call(this.posterCache, m.title);
-        });
-
-        if (uncached.length === 0) return;
-
-        // Fetch in parallel, max 5 at a time to be respectful of rate limits
-        const chunks = [];
-        for (let i = 0; i < uncached.length; i += 5) {
-            chunks.push(uncached.slice(i, i + 5));
-        }
-        for (const chunk of chunks) {
-                await Promise.all(chunk.map(m => this.fetchPoster(m.title)));
-            }
     }
 
     async loadFromGoogleSheets() {
