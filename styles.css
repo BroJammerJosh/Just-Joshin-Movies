@@ -310,6 +310,7 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0;
 }
 
 .movie-poster {
@@ -333,6 +334,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .col-title .movie-title {
@@ -464,9 +466,9 @@ button:hover {
 
     .table-header,
     .table-row {
-        grid-template-columns: 1fr 80px;
-        gap: 10px;
-        padding: 15px 20px;
+        grid-template-columns: 1fr 60px;
+        gap: 8px;
+        padding: 12px 15px;
     }
     
     .table-header {
