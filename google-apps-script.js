@@ -320,7 +320,8 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
     <!-- Greeting + summary -->
     <tr><td style="padding:32px 40px 0;">
         <p style="margin:0 0 20px;font-size:15px;color:#444;">Hey ${escapeHtml(firstName)},</p>
-        <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">Here's what went down at the movies in ${prevMonthName}. ${monthMovies.length === 0 ? 'A quiet month — nothing new to report.' : `${monthMovies.length} movie${monthMovies.length !== 1 ? 's' : ''} watched, with a net score of <strong style="color:${scoreColor};">${netScore >= 0 ? '+' : ''}${netScore}</strong>.`}</p>
+        <p style="margin:0 0 20px;font-size:15px;color:#444;line-height:1.6;">Here's your monthly update from The Joshening — your source for keeping up to date with what movies Josh has been watching.</p>
+        <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">${monthMovies.length === 0 ? 'A quiet month — nothing new to report.' : `Josh watched ${monthMovies.length} movie${monthMovies.length !== 1 ? 's' : ''} last month with a net score of <strong style="color:${scoreColor};">${netScore >= 0 ? '+' : ''}${netScore}</strong>.`}</p>
         <table style="width:100%;border-collapse:collapse;">
             ${hotSection}
             ${goodSection}
