@@ -403,6 +403,7 @@ class MovieTracker {
     displayMovies() {
         this.updateYearFilter();
         this.applyFiltersAndSort();
+        this.displayLifetimeStats();
     }
 
     updateYearFilter() {
@@ -424,6 +425,51 @@ class MovieTracker {
         if (years.includes(parseInt(currentValue))) {
             yearFilter.value = currentValue;
         }
+    }
+
+    displayLifetimeStats() {
+        const statsBody = document.getElementById('lifetime-stats-body');
+        if (!statsBody || this.movies.length === 0) return;
+
+        const totalMovies = this.movies.length;
+        const lifetimeNetScore = this.movies.reduce((sum, m) => sum + m.score, 0);
+
+        // Group by year and compute net scores per year
+        const scoresByYear = {};
+        this.movies.forEach(m => {
+            const year = m.year || new Date(m.date).getFullYear();
+            if (!scoresByYear[year]) scoresByYear[year] = 0;
+            scoresByYear[year] += m.score;
+        });
+
+        const yearEntries = Object.entries(scoresByYear);
+        let bestYear = yearEntries[0];
+        let worstYear = yearEntries[0];
+        yearEntries.forEach(([year, score]) => {
+            if (score > bestYear[1]) bestYear = [year, score];
+            if (score < worstYear[1]) worstYear = [year, score];
+        });
+
+        statsBody.innerHTML = `
+            <table class="lifetime-stats-table">
+                <tr>
+                    <td class="lifetime-stats-table__label">Total Movies Scored</td>
+                    <td class="lifetime-stats-table__value">${totalMovies}</td>
+                </tr>
+                <tr>
+                    <td class="lifetime-stats-table__label">Lifetime Net Score</td>
+                    <td class="lifetime-stats-table__value"><span class="score-value ${lifetimeNetScore >= 0 ? 'positive' : 'negative'}">${lifetimeNetScore}</span></td>
+                </tr>
+                <tr>
+                    <td class="lifetime-stats-table__label">Highest Net Score Year</td>
+                    <td class="lifetime-stats-table__value">${bestYear[0]} (<span class="score-value positive">${bestYear[1]}</span>)</td>
+                </tr>
+                <tr>
+                    <td class="lifetime-stats-table__label">Lowest Net Score Year</td>
+                    <td class="lifetime-stats-table__value">${worstYear[0]} (<span class="score-value negative">${worstYear[1]}</span>)</td>
+                </tr>
+            </table>
+        `;
     }
 
     async displayMoviesList(moviesToShow) {
@@ -463,7 +509,10 @@ class MovieTracker {
                 <div class="year-section">
                     <div class="year-header">
                         <h3>${year}</h3>
-                        <div class="net-score">Net Score: <span class="score-value ${netScore >= 0 ? 'positive' : 'negative'}">${netScore}</span></div>
+                        <div class="year-header__stats">
+                            <span>Movies Watched: <strong>${yearMovies.length}</strong></span>
+                            <span>Net Score: <span class="score-value ${netScore >= 0 ? 'positive' : 'negative'}">${netScore}</span></span>
+                        </div>
                     </div>
                     <div class="movies-table">
                         <div class="table-header">
