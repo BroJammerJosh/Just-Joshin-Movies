@@ -10,7 +10,10 @@
     <div class="container">
         <div class="banner-image">
             <img src="banner.jpg" alt="Movie editing room banner" />
-            <button class="get-updates-btn" id="getUpdatesBtn" aria-haspopup="dialog">Get Updates</button>
+            <div class="banner-buttons">
+                <button class="banner-btn" id="subscribeBtn" aria-haspopup="dialog">Subscribe</button>
+                <button class="banner-btn" id="requestsBtn" aria-haspopup="dialog">Requests</button>
+            </div>
         </div>
         
         <header>
@@ -113,7 +116,7 @@
     <div id="signupModal" class="signup-modal" role="dialog" aria-modal="true" aria-labelledby="signupModalTitle" hidden>
         <div class="signup-modal__box">
             <button class="signup-modal__close" id="signupModalClose" aria-label="Close">&times;</button>
-            <h2 class="signup-modal__title" id="signupModalTitle">Get Monthly Updates</h2>
+            <h2 class="signup-modal__title" id="signupModalTitle">Subscribe to The Joshening</h2>
             <p class="signup-modal__subtitle">A monthly digest of new movies, scores, and awards — delivered to your inbox on the first of every month.</p>
             <form id="signupForm" class="signup-form" novalidate>
                 <div class="signup-form__field">
@@ -126,6 +129,31 @@
                 </div>
                 <div id="signupMessage" class="signup-form__message" hidden></div>
                 <button type="submit" class="signup-form__submit" id="signupSubmit">Subscribe</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Movie request modal -->
+    <div id="requestModal" class="signup-modal" role="dialog" aria-modal="true" aria-labelledby="requestModalTitle" hidden>
+        <div class="signup-modal__box">
+            <button class="signup-modal__close" id="requestModalClose" aria-label="Close">&times;</button>
+            <h2 class="signup-modal__title" id="requestModalTitle">Suggest a Movie</h2>
+            <p class="signup-modal__subtitle">Think Josh should watch something? Drop the recommendation here.</p>
+            <form id="requestForm" class="signup-form" novalidate>
+                <div class="signup-form__field">
+                    <label for="requestName">Your Name</label>
+                    <input type="text" id="requestName" name="name" placeholder="Your name" required autocomplete="name">
+                </div>
+                <div class="signup-form__field">
+                    <label for="requestMovie">Movie Title</label>
+                    <input type="text" id="requestMovie" name="movieTitle" placeholder="Movie you're recommending" required>
+                </div>
+                <div class="signup-form__field">
+                    <label for="requestNote">Why should Josh watch it? (optional)</label>
+                    <textarea id="requestNote" name="note" placeholder="Tell Josh why..." rows="3"></textarea>
+                </div>
+                <div id="requestMessage" class="signup-form__message" hidden></div>
+                <button type="submit" class="signup-form__submit" id="requestSubmit">Submit</button>
             </form>
         </div>
     </div>

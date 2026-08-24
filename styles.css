@@ -754,11 +754,17 @@ img.movie-poster:not(.movie-poster--placeholder) {
     border-top: 1px solid #e9ecef;
 }
 
-/* ── Get Updates button (banner overlay) ── */
-.get-updates-btn {
+/* ── Banner buttons (Subscribe + Requests) ── */
+.banner-buttons {
     position: absolute;
     bottom: 16px;
     right: 16px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.banner-btn {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border: none;
@@ -769,10 +775,9 @@ img.movie-poster:not(.movie-poster--placeholder) {
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
-    z-index: 10;
 }
 
-.get-updates-btn:hover {
+.banner-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.4);
 }
@@ -871,6 +876,22 @@ img.movie-poster:not(.movie-poster--placeholder) {
     border-color: #667eea;
 }
 
+.signup-form__field textarea {
+    padding: 10px 14px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    width: 100%;
+    resize: vertical;
+}
+
+.signup-form__field textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
 .signup-form__message {
     padding: 10px 14px;
     border-radius: 8px;
@@ -916,7 +937,7 @@ img.movie-poster:not(.movie-poster--placeholder) {
         padding: 28px 24px;
     }
 
-    .get-updates-btn {
+    .banner-btn {
         padding: 8px 14px;
         font-size: 0.85rem;
     }

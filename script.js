@@ -81,10 +81,13 @@ class MovieTracker {
 
         // Newsletter signup
         this.setupSignup();
+
+        // Movie requests
+        this.setupRequests();
     }
 
     setupSignup() {
-        const btn = document.getElementById('getUpdatesBtn');
+        const btn = document.getElementById('subscribeBtn');
         const modal = document.getElementById('signupModal');
         const closeBtn = document.getElementById('signupModalClose');
         const form = document.getElementById('signupForm');
@@ -160,6 +163,84 @@ class MovieTracker {
 
     showSignupMessage(text, type) {
         const message = document.getElementById('signupMessage');
+        message.textContent = text;
+        message.className = `signup-form__message ${type}`;
+        message.hidden = false;
+    }
+
+    setupRequests() {
+        const btn = document.getElementById('requestsBtn');
+        const modal = document.getElementById('requestModal');
+        const closeBtn = document.getElementById('requestModalClose');
+        const form = document.getElementById('requestForm');
+        const message = document.getElementById('requestMessage');
+        const submitBtn = document.getElementById('requestSubmit');
+
+        const openModal = () => {
+            modal.hidden = false;
+            document.body.classList.add('modal-open');
+            document.getElementById('requestName').focus();
+        };
+
+        const closeModal = () => {
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+            form.reset();
+            message.hidden = true;
+            message.className = 'signup-form__message';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+        };
+
+        btn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('requestName').value.trim();
+            const movieTitle = document.getElementById('requestMovie').value.trim();
+            const note = document.getElementById('requestNote').value.trim();
+
+            if (!name || !movieTitle) {
+                this.showRequestMessage('Please fill in your name and a movie title.', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzR_o8AXukODSdmk7t4XNdKcaujboBWlspoqcuYBi7I8KgozKE37wVmfcpVJR-t2FuNNA/exec';
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'request', name, movieTitle, note })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    this.showRequestMessage(`Thanks, ${this.escapeHtml(name)}! Your suggestion has been submitted.`, 'success');
+                    submitBtn.textContent = 'Submitted!';
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+            } catch (err) {
+                console.error('Request error:', err);
+                this.showRequestMessage('Something went wrong. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+        });
+    }
+
+    showRequestMessage(text, type) {
+        const message = document.getElementById('requestMessage');
         message.textContent = text;
         message.className = `signup-form__message ${type}`;
         message.hidden = false;

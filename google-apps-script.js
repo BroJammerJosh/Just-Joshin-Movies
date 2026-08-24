@@ -19,6 +19,10 @@ function doPost(e) {
             return handleSubscribe(spreadsheet, data);
         }
 
+        if (data.action === 'request') {
+            return handleRequest(spreadsheet, data);
+        }
+
         // Default: add a movie (legacy behavior)
         const movieDate = new Date(data.date);
         const year = data.year || movieDate.getFullYear();
@@ -72,6 +76,29 @@ function handleSubscribe(spreadsheet, data) {
     }
 
     subSheet.appendRow([firstName, email, new Date().toISOString()]);
+    return jsonResponse({ success: true });
+}
+
+// ─────────────────────────────────────────────
+// handleRequest — saves movie suggestion to Suggestions tab
+// ─────────────────────────────────────────────
+function handleRequest(spreadsheet, data) {
+    const name = (data.name || '').toString().trim();
+    const movieTitle = (data.movieTitle || '').toString().trim();
+    const note = (data.note || '').toString().trim();
+
+    if (!name || !movieTitle) {
+        return jsonResponse({ success: false, error: 'Missing required fields' });
+    }
+
+    // Get or create Suggestions sheet
+    let sugSheet = spreadsheet.getSheetByName('Suggestions');
+    if (!sugSheet) {
+        sugSheet = spreadsheet.insertSheet('Suggestions');
+        sugSheet.appendRow(['Name', 'Movie Title', 'Note', 'Date Submitted']);
+    }
+
+    sugSheet.appendRow([name, movieTitle, note, new Date().toISOString()]);
     return jsonResponse({ success: true });
 }
 
