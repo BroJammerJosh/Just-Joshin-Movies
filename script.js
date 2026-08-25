@@ -593,17 +593,19 @@ class MovieTracker {
         );
         if (uncached.length === 0) return;
 
-        uncached.forEach(movie => {
-            this.fetchPoster(movie.title).then(posterUrl => {
-                if (!posterUrl) return;
-                // Swap placeholder img for real poster img
-                document.querySelectorAll(`img.movie-poster--placeholder[data-title="${CSS.escape(movie.title)}"]`).forEach(placeholder => {
-                    const isAward = placeholder.classList.contains('award-poster');
-                    placeholder.src = isAward ? posterUrl.replace('/w92/', '/w342/') : posterUrl;
-                    placeholder.alt = '';
-                    placeholder.classList.remove('movie-poster--placeholder');
+        // Stagger requests with 250ms delay to avoid TMDB 429 rate limits
+        uncached.forEach((movie, index) => {
+            setTimeout(() => {
+                this.fetchPoster(movie.title).then(posterUrl => {
+                    if (!posterUrl) return;
+                    document.querySelectorAll(`img.movie-poster--placeholder[data-title="${CSS.escape(movie.title)}"]`).forEach(placeholder => {
+                        const isAward = placeholder.classList.contains('award-poster');
+                        placeholder.src = isAward ? posterUrl.replace('/w92/', '/w342/') : posterUrl;
+                        placeholder.alt = '';
+                        placeholder.classList.remove('movie-poster--placeholder');
+                    });
                 });
-            });
+            }, index * 250);
         });
     }
 
@@ -750,6 +752,25 @@ class MovieTracker {
             const query = encodeURIComponent(searchTitle);
             const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}${yearParam}&include_adult=false`;
             const response = await fetch(url);
+            if (response.status === 429) {
+                // Rate limited — wait and retry once
+                await new Promise(r => setTimeout(r, 2000));
+                const retry = await fetch(url);
+                if (!retry.ok) throw new Error('TMDB retry failed');
+                const retryData = await retry.json();
+                const retryResult = retryData.results?.[0] || null;
+                if (!retryResult) {
+                    console.warn(`TMDB: No results for "${title}" (searched: "${searchTitle}"${yearParam ? ', year: ' + yearMatch[2] : ''})`);
+                }
+                const rPosterPath = retryResult?.poster_path || null;
+                const rPosterUrl = rPosterPath ? `${TMDB_IMG_BASE}${rPosterPath}` : null;
+                const rOverview = retryResult?.overview || null;
+                this.posterCache[cacheKey] = rPosterUrl;
+                this.overviewCache[cacheKey] = rOverview;
+                this.savePosterCache();
+                this.saveOverviewCache();
+                return rPosterUrl;
+            }
             if (!response.ok) throw new Error('TMDB request failed');
             const data = await response.json();
             const result = data.results?.[0] || null;
