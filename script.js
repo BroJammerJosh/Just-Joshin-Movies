@@ -2,7 +2,7 @@ const TMDB_API_KEY = 'b4ba32fa646c73c4d65e7655af34b8be';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w92';
 const POSTER_CACHE_KEY = 'tmdb_poster_cache';
-const POSTER_CACHE_VERSION = 2; // bump this to bust stale cache
+const POSTER_CACHE_VERSION = 3; // bump this to bust stale cache
 
 class MovieTracker {
     constructor() {
@@ -12,6 +12,7 @@ class MovieTracker {
         const cacheVersion = parseInt(localStorage.getItem('tmdb_poster_cache_version') || '1');
         if (cacheVersion < POSTER_CACHE_VERSION) {
             localStorage.removeItem(POSTER_CACHE_KEY);
+            localStorage.removeItem('tmdb_overview_cache');
             localStorage.setItem('tmdb_poster_cache_version', String(POSTER_CACHE_VERSION));
         }
         this.posterCache = JSON.parse(localStorage.getItem(POSTER_CACHE_KEY)) || {};
