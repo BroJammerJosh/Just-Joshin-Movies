@@ -584,14 +584,14 @@ class MovieTracker {
         moviesList.innerHTML = html;
 
         // Fetch missing posters in the background and swap placeholders as they arrive
-        this.fetchAndInjectPosters(moviesToShow);
+        this._posterQueueDuration = this.fetchAndInjectPosters(moviesToShow);
     }
 
-    fetchAndInjectPosters(movies) {
+    fetchAndInjectPosters(movies, delayOffset = 0) {
         const uncached = movies.filter(m =>
             !Object.prototype.hasOwnProperty.call(this.posterCache, m.title)
         );
-        if (uncached.length === 0) return;
+        if (uncached.length === 0) return 0;
 
         // Stagger requests with 250ms delay to avoid TMDB 429 rate limits
         uncached.forEach((movie, index) => {
@@ -605,8 +605,11 @@ class MovieTracker {
                         placeholder.classList.remove('movie-poster--placeholder');
                     });
                 });
-            }, index * 250);
+            }, delayOffset + (index * 250));
         });
+
+        // Return total time this batch will take
+        return uncached.length * 250;
     }
 
     formatDateShort(dateString) {
@@ -718,9 +721,10 @@ class MovieTracker {
             });
         });
 
-        // Fetch missing posters for award movies in the background
+        // Fetch missing posters for award movies in the background (offset to avoid colliding with movie queue)
         const awardMovies = this.awards.map(a => ({ title: a.movieTitle }));
-        this.fetchAndInjectPosters(awardMovies);
+        const offset = (this._posterQueueDuration || 0) + 500;
+        this.fetchAndInjectPosters(awardMovies, offset);
     }
 
     savePosterCache() {
