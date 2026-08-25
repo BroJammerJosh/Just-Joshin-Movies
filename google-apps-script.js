@@ -478,11 +478,11 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
         <p style="margin:0 0 20px;font-size:15px;color:#444;line-height:1.6;">Here's your monthly update from The Joshening — your source for keeping up to date with what movies Josh has been watching.</p>
         <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">${monthMovies.length === 0 ? 'A quiet month — nothing new to report.' : `Josh watched ${monthMovies.length} movie${monthMovies.length !== 1 ? 's' : ''} last month with a net score of <strong style="color:${scoreColor};">${netScore}</strong>.`}</p>
         <table style="width:100%;border-collapse:collapse;">
+            ${newFeaturesSection}
             ${hotSection}
             ${goodSection}
             ${mehSection}
             ${badSection}
-            ${newFeaturesSection}
             ${unsubscribeNote}
         </table>
     </td></tr>
