@@ -979,3 +979,38 @@ img.movie-poster:not(.movie-poster--placeholder) {
     color: #2c3e50;
     text-align: right;
 }
+
+/* ── Synopsis ? button ── */
+.synopsis-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #e9ecef;
+    border: none;
+    box-shadow: none;
+    color: #555;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 6px;
+    padding: 0;
+    vertical-align: middle;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+}
+
+.synopsis-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: none;
+}
+
+.synopsis-text {
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.7;
+    margin-top: 16px;
+}

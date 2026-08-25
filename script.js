@@ -15,6 +15,7 @@ class MovieTracker {
             localStorage.setItem('tmdb_poster_cache_version', String(POSTER_CACHE_VERSION));
         }
         this.posterCache = JSON.parse(localStorage.getItem(POSTER_CACHE_KEY)) || {};
+        this.overviewCache = JSON.parse(localStorage.getItem('tmdb_overview_cache')) || {};
         this.currentScore = null;
         this.init();
     }
@@ -78,6 +79,9 @@ class MovieTracker {
 
         // Poster hover preview and click modal
         this.setupPosterInteractions();
+
+        // Synopsis popup
+        this.setupSynopsisModal();
 
         // Newsletter signup
         this.setupSignup();
@@ -312,6 +316,37 @@ class MovieTracker {
         });
     }
 
+    setupSynopsisModal() {
+        const modal = document.getElementById('synopsisModal');
+        const modalText = document.getElementById('synopsisText');
+        const closeBtn = document.getElementById('synopsisModalClose');
+
+        const closeModal = () => {
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        // Delegate click on synopsis buttons
+        document.getElementById('moviesList').addEventListener('click', (e) => {
+            const btn = e.target.closest('.synopsis-btn');
+            if (!btn) return;
+            e.stopPropagation();
+            const title = btn.getAttribute('data-title');
+            const overview = this.overviewCache[title];
+            modalText.textContent = overview || 'No synopsis available for this title.';
+            modal.hidden = false;
+            document.body.classList.add('modal-open');
+        });
+    }
+
     handleSearch(searchTerm) {
         if (searchTerm.length > 0) {
             this.showSuggestions(searchTerm);
@@ -529,7 +564,7 @@ class MovieTracker {
                                 <div class="col-title">
                                     ${posterHtml}
                                     <div class="movie-title-group">
-                                        <div class="movie-title">${this.escapeHtml(movie.title)}</div>
+                                        <div class="movie-title">${this.escapeHtml(movie.title)}<button class="synopsis-btn" data-title="${this.escapeHtml(movie.title)}" aria-label="What is this movie?" title="What the hell is this movie?">?</button></div>
                                         ${movie.notes ? `<div class="movie-notes">${this.escapeHtml(movie.notes)}</div>` : ''}
                                     </div>
                                 </div>
@@ -688,6 +723,10 @@ class MovieTracker {
         localStorage.setItem(POSTER_CACHE_KEY, JSON.stringify(this.posterCache));
     }
 
+    saveOverviewCache() {
+        localStorage.setItem('tmdb_overview_cache', JSON.stringify(this.overviewCache));
+    }
+
     async fetchPoster(title) {
         const cacheKey = title;
 
@@ -702,14 +741,20 @@ class MovieTracker {
             const response = await fetch(url);
             if (!response.ok) throw new Error('TMDB request failed');
             const data = await response.json();
-            const posterPath = data.results?.[0]?.poster_path || null;
+            const result = data.results?.[0] || null;
+            const posterPath = result?.poster_path || null;
             const posterUrl = posterPath ? `${TMDB_IMG_BASE}${posterPath}` : null;
+            const overview = result?.overview || null;
             this.posterCache[cacheKey] = posterUrl;
+            this.overviewCache[cacheKey] = overview;
             this.savePosterCache();
+            this.saveOverviewCache();
             return posterUrl;
         } catch {
             this.posterCache[cacheKey] = null;
+            this.overviewCache[cacheKey] = null;
             this.savePosterCache();
+            this.saveOverviewCache();
             return null;
         }
     }
