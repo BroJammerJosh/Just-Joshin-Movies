@@ -302,6 +302,9 @@ function sendMonthlyNewsletter() {
         }
     });
 
+    // Get new features from the Newsletter tab
+    const newFeatures = getNewFeatures(spreadsheet);
+
     // Build and send email to each subscriber
     subscribers.forEach(row => {
         const firstName = row[0].toString().trim();
@@ -318,7 +321,8 @@ function sendMonthlyNewsletter() {
                 mehMovies,
                 badMovies,
                 netScore,
-                posterCache
+                posterCache,
+                newFeatures
             });
 
             GmailApp.sendEmail(email, `The Joshening - ${prevMonthName} Edition`, '', {
@@ -330,6 +334,30 @@ function sendMonthlyNewsletter() {
             console.error(`Failed to send to ${email}: ${err}`);
         }
     });
+}
+
+// ─────────────────────────────────────────────
+// getNewFeatures — reads Newsletter tab for "new feature" rows
+// ─────────────────────────────────────────────
+function getNewFeatures(spreadsheet) {
+    const sheet = spreadsheet.getSheetByName('Newsletter');
+    if (!sheet) return [];
+
+    const rows = sheet.getDataRange().getValues();
+    const features = [];
+
+    rows.forEach(row => {
+        const type = (row[0] || '').toString().trim().toLowerCase();
+        if (type === 'new feature') {
+            const title = (row[1] || '').toString().trim();
+            const note = (row[2] || '').toString().trim();
+            if (title) {
+                features.push({ title, note });
+            }
+        }
+    });
+
+    return features;
 }
 
 // ─────────────────────────────────────────────
@@ -350,7 +378,7 @@ function fetchTmdbPoster(title) {
 // ─────────────────────────────────────────────
 // buildEmailHtml — assembles the HTML email
 // ─────────────────────────────────────────────
-function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, hotMovies, goodMovies, mehMovies, badMovies, netScore, posterCache }) {
+function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, hotMovies, goodMovies, mehMovies, badMovies, netScore, posterCache, newFeatures }) {
 
     const scoreColor = netScore >= 0 ? '#27ae60' : '#e74c3c';
 
@@ -411,6 +439,19 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
         </tr></table>
     </td></tr>`;
 
+    const newFeaturesSection = (!newFeatures || newFeatures.length === 0) ? '' : `
+    <tr><td style="padding:24px 0 8px;">
+        <h2 style="margin:0 0 16px;font-size:18px;color:#2c3e50;border-bottom:2px solid #764ba2;padding-bottom:8px;">New Features</h2>
+        <table style="width:100%;border-collapse:collapse;">
+            ${newFeatures.map(f => `<tr>
+                <td style="padding:8px 0;border-bottom:1px solid #f1f3f4;">
+                    <div style="font-size:14px;font-weight:600;color:#2c3e50;">${escapeHtml(f.title)}</div>
+                    ${f.note ? `<div style="font-size:13px;color:#555;line-height:1.5;margin-top:3px;">${escapeHtml(f.note)}</div>` : ''}
+                </td>
+            </tr>`).join('')}
+        </table>
+    </td></tr>`;
+
     const unsubscribeNote = `<tr><td style="padding:24px 0 0;text-align:center;font-size:12px;color:#aaa;">
         You're receiving this because you signed up at <a href="${SITE_URL}" style="color:#667eea;">${SITE_URL}</a>.
         To unsubscribe, reply to this email with "unsubscribe" in the subject line.
@@ -441,6 +482,7 @@ function buildEmailHtml({ firstName, prevMonthName, prevMonthYear, monthMovies, 
             ${goodSection}
             ${mehSection}
             ${badSection}
+            ${newFeaturesSection}
             ${unsubscribeNote}
         </table>
     </td></tr>
