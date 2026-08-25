@@ -2,7 +2,7 @@ const TMDB_API_KEY = 'b4ba32fa646c73c4d65e7655af34b8be';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w92';
 const POSTER_CACHE_KEY = 'tmdb_poster_cache';
-const POSTER_CACHE_VERSION = 3; // bump this to bust stale cache
+const POSTER_CACHE_VERSION = 4; // bump this to bust stale cache
 
 class MovieTracker {
     constructor() {
@@ -560,12 +560,13 @@ class MovieTracker {
                             const posterHtml = posterUrl
                                 ? `<img class="movie-poster" src="${posterUrl}" alt="" loading="lazy" width="46" height="69">`
                                 : `<img class="movie-poster movie-poster--placeholder" src="poster-placeholder.png" alt="No poster available" data-title="${this.escapeHtml(movie.title)}" loading="lazy" width="46" height="69">`;
+                            const displayTitle = movie.title.replace(/\s*\(\d{4}\)\s*$/, '');
                             return `
                             <div class="table-row">
                                 <div class="col-title">
                                     ${posterHtml}
                                     <div class="movie-title-group">
-                                        <div class="movie-title">${this.escapeHtml(movie.title)}<button class="synopsis-btn" data-title="${this.escapeHtml(movie.title)}" aria-label="What is this movie?" title="What the hell is this movie?">?</button></div>
+                                        <div class="movie-title">${this.escapeHtml(displayTitle)}<button class="synopsis-btn" data-title="${this.escapeHtml(movie.title)}" aria-label="What is this movie?" title="What the hell is this movie?">?</button></div>
                                         ${movie.notes ? `<div class="movie-notes">${this.escapeHtml(movie.notes)}</div>` : ''}
                                     </div>
                                 </div>
@@ -737,12 +738,26 @@ class MovieTracker {
         }
 
         try {
-            const query = encodeURIComponent(title);
-            const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}&include_adult=false`;
+            // Check for year hint in parentheses, e.g. "Masters of the Universe (1987)"
+            let searchTitle = title;
+            let yearParam = '';
+            const yearMatch = title.match(/^(.+?)\s*\((\d{4})\)\s*$/);
+            if (yearMatch) {
+                searchTitle = yearMatch[1].trim();
+                yearParam = `&year=${yearMatch[2]}`;
+            }
+
+            const query = encodeURIComponent(searchTitle);
+            const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}${yearParam}&include_adult=false`;
             const response = await fetch(url);
             if (!response.ok) throw new Error('TMDB request failed');
             const data = await response.json();
             const result = data.results?.[0] || null;
+
+            if (!result) {
+                console.warn(`TMDB: No results for "${title}" (searched: "${searchTitle}"${yearParam ? ', year: ' + yearMatch[2] : ''})`);
+            }
+
             const posterPath = result?.poster_path || null;
             const posterUrl = posterPath ? `${TMDB_IMG_BASE}${posterPath}` : null;
             const overview = result?.overview || null;
@@ -751,7 +766,8 @@ class MovieTracker {
             this.savePosterCache();
             this.saveOverviewCache();
             return posterUrl;
-        } catch {
+        } catch (err) {
+            console.warn(`TMDB: Fetch error for "${title}":`, err);
             this.posterCache[cacheKey] = null;
             this.overviewCache[cacheKey] = null;
             this.savePosterCache();
