@@ -118,7 +118,6 @@ header p {
 }
 
 .system-explanation {
-    max-width: 800px;
     line-height: 1.6;
     color: #555;
     margin-top: 25px;
@@ -953,7 +952,6 @@ img.movie-poster:not(.movie-poster--placeholder) {
 /* ── Lifetime Stats Table ── */
 .lifetime-stats-table {
     width: 100%;
-    max-width: 500px;
     border-collapse: collapse;
 }
 
